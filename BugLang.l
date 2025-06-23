@@ -7,14 +7,16 @@ FIM "end"
 
 VAR "var" 
 STRING \"[^\"]*\"
-NUMBER [0-9]+\.?[0-9]+
-BOOLEAN true|false
+NUMBER [0-9]+(\.[0-9]+)?
 
 MAIOR ">"
 MENOR "<"
 MAI ">="
 MEI "<="
-IGUAL "=="
+II "=="
+DIF "!="
+OR "||"
+AND "&&"
 
 PRINT "print"
 SCAN "read"
@@ -23,26 +25,21 @@ ELSE "else"
 WHILE "while"
 
 ID [a-zA-Z_][a-zA-Z0-9_]*
-CL "//"+.*
+CL "//".* 
+CB "/""*"(.|\n)*"*""/"
 
 %%
 
 {INICIO} {return INICIO;}
 {FIM} {return FIM;}
 
+{VAR} {return VAR;}
 {STRING} {
     strcpy(yylval.str, yytext);
     return STRING;}
 {NUMBER} {
     yylval.flo = atof(yytext);
     return NUMBER;}
-{BOOLEAN} {
-    if(strcmp(yytext, "true") == 0)
-        yylval.boo = 1;
-    else
-        yylval.boo = 0;
-    return BOOLEAN;}
-
 {PRINT} {return PRINT;}
 {SCAN} {return SCAN;}
 {IF} {return IF;}
@@ -52,10 +49,18 @@ CL "//"+.*
 {MENOR} {return MENOR;}
 {MAI} {return MAI;}
 {MEI} {return MEI;}
-{IGUAL} {return IGUAL;}
+{II} {return II;}
+{DIF} {return DIF;}
+{OR} {return OR;}
+{AND} {return AND;}
 {ID} {
     strcpy(yylval.str, yytext);
     return ID;}
-[-+()=/*^%{};] {return *yytext;}
+
+{CL} {;}
+{CB} {;}
+
+"+"|"-"|"/"|"*"|"^"|"%"|"=" {return *yytext;}
+[(){};:] {return *yytext;}
 [ \t\n\r]*   {;}
 %%

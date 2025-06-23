@@ -1,0 +1,4 @@
+# ignorar arquivos
+BugLang
+BugLang.tab.c
+lex.yy.c
