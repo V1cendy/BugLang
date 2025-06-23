@@ -1,14 +1,16 @@
 start
-    var x
-        x = 10
-    print(x)
-        x = x + 5
-    print(x)
-    if (x > 10) {
-        print(15)
-    }
-    while (x > 10) {
-        x = x - 1
-    print(x)
-    }
+    var nome
+    var nota
+    var nota2
+
+    nome = "Victor"
+    nota = 8.5
+    nota2 = 2
+
+    print(nome)
+    print(nota)
+    
+    nota + nota2
+    print(nota)
+
 end
