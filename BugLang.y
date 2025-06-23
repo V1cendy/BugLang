@@ -71,7 +71,6 @@ bloco:
 comando:
       declaracao
     | atribuicao
-    | atualizacao
     | leitura
     | escrita
     | condicional
@@ -126,17 +125,32 @@ leitura:
     ;
 
 escrita:
-    PRINT '(' ID ')' {
-        VARS *v = srch(listaVars, $3);
-        if (v) {
-            if (strcmp(v->tipo, "float") == 0)
-                printf("%.2f\n", v->valor);
-            else
-                printf("%s\n", v->s_valor);
+    PRINT '(' expressao ')' {
+        printf("%.2f\n", $3);
+    }
+| PRINT '(' ID ')' {
+    VARS *v = srch(listaVars, $3);
+    if (v) {
+        if (strcmp(v->tipo, "float") == 0) {
+            printf("%.2f\n", v->valor);
+        } else {
+            // Remove as aspas da string salva
+            char temp[100];
+            if (v->s_valor[0] == '"' && v->s_valor[strlen(v->s_valor) - 1] == '"') {
+                strncpy(temp, v->s_valor + 1, strlen(v->s_valor) - 2);
+                temp[strlen(v->s_valor) - 2] = '\0';
+                printf("%s\n", temp);
+            } else {
+                printf("%s\n", v->s_valor); // fallback
+            }
         }
     }
-    | PRINT '(' expressao ')' {
-        printf("%.2f\n", $3);
+}
+    | PRINT '(' STRING ')' {
+    char temp[100];
+    strncpy(temp, $3 + 1, strlen($3) - 2); // remove aspas
+    temp[strlen($3) - 2] = '\0';
+    printf("%s\n", temp);
     }
     ;
 
@@ -171,19 +185,6 @@ expressao:
     }
     | '(' expressao ')' { $$ = $2; }
     ;
-
-    atualizacao:
-    ID '+' expressao {
-        VARS *v = srch(listaVars, $1);
-        if (v && strcmp(v->tipo, "float") == 0) {
-            v->valor += $3;
-        } else {
-            printf("Erro: operação inválida com variável %s.\n", $1);
-        }
-    }
-    ;
-
-
 %%
 
 #include "lex.yy.c"

@@ -1,16 +1,32 @@
+/*
+Buglang
+compilador
+ifce - aracati
+*/
+
 start
+//criação de variaveis
     var nome
     var nota
     var nota2
+    var x
 
-    nome = "Victor"
+//atribuição de dados as variaveis
     nota = 8.5
-    nota2 = 2
+    nota2 = 4.234
 
+//testes de prints
     print(nome)
     print(nota)
     
-    nota + nota2
-    print(nota)
+    x = nota + nota2
+
+    print(x)
+    print("zezim")
+
+    x = nota2 + 3 + nota
+    
+    print(x)
+    print(1 + 2)
 
 end
