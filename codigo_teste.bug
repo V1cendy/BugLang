@@ -1,6 +1,6 @@
 /*
 Buglang
-compilador
+compiladores
 ifce - aracati
 */
 
@@ -10,23 +10,25 @@ start
     var nota
     var nota2
     var x
+    var x2
+    var x3
 
 //atribuição de dados as variaveis
+    nome = "victor"
     nota = 8.5
-    nota2 = 4.234
+    nota2 = 4.23
+    x = (nota2 + 3 - nota * 2)/5 
 
 //testes de prints
     print(nome)
     print(nota)
-    
-    x = nota + nota2
-
-    print(x)
     print("zezim")
-
-    x = nota2 + 3 + nota
-    
     print(x)
+
+    read(x2) 
+
+    print(x2)
     print(1 + 2)
+    print(x3)
 
 end

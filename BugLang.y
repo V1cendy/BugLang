@@ -15,7 +15,8 @@ char tipo_atual[20];
 typedef struct vars {
     char name[50];
     char tipo[20];
-    float valor;
+    int inte;
+    float flo;
     char s_valor[100];
     struct vars *prox;
 } VARS;
@@ -75,7 +76,7 @@ comando:
     | escrita
     | condicional
     | repeticao
-
+    ;
 
 declaracao:
     VAR ID {
@@ -84,75 +85,88 @@ declaracao:
             strcpy(tipo_atual, "indefinido");
             listaVars = ins(listaVars, $2);
         }
-    }
-    ;
-
+    };
 
 atribuicao:
     ID '=' STRING {
         VARS *v = srch(listaVars, $1);
         if (v) {
-            if (strcmp(v->tipo, "indefinido") == 0) {
-                strcpy(v->tipo, "string");
-            }
-            if (strcmp(v->tipo, "string") == 0) {
-                strcpy(v->s_valor, $3);
-            } else {
-                printf("Erro: variável %s não é do tipo string.\n", $1);
-            }
+            strcpy(v->s_valor, $3);
+            strcpy(v->tipo, "string");
+            //printf("atribuiu string\n");
         }
     }
-    | ID '=' expressao {
+    |ID '=' expressao {
         VARS *v = srch(listaVars, $1);
         if (v) {
-            if (strcmp(v->tipo, "indefinido") == 0) {
-                strcpy(v->tipo, "float");
-            }
-            if (strcmp(v->tipo, "float") == 0) {
-                v->valor = $3;
-            } else {
-                printf("Erro: variável %s não é do tipo float.\n", $1);
-            }
+            // Para simplificar, sempre define como float
+            v->flo = $3;
+            v->inte = (int)$3;
+            strcpy(v->tipo, floor($3) == $3 ? "int" : "float");
         }
-    }
-    ;
+    };
 
 
 leitura:
     SCAN '(' ID ')' {
-        printf("Lendo valor para: %s\n", $3);
-    }
-    ;
+        VARS *v = srch(listaVars, $3);
+        if (!v) {
+            printf("Erro: variável %s não declarada.\n", $3);
+        } else {
+            char buffer[100];
+            scanf(" %99[^\n]", buffer);
+
+            int int_val;
+            float float_val;
+
+            // Primeiro tenta int
+            if (sscanf(buffer, "%d", &int_val) == 1 && strchr(buffer, '.') == NULL) {
+                v->inte = int_val;
+                strcpy(v->tipo, "int");
+            }
+            // Depois tenta float
+            else if (sscanf(buffer, "%f", &float_val) == 1) {
+                v->flo = float_val;
+                strcpy(v->tipo, "float");
+            }
+            // Senão, assume string
+            else {
+                snprintf(v->s_valor, sizeof(v->s_valor), "%s", buffer);
+                strcpy(v->tipo, "string");
+            }
+        }
+    };
 
 escrita:
     PRINT '(' expressao ')' {
         printf("%.2f\n", $3);
     }
-| PRINT '(' ID ')' {
-    VARS *v = srch(listaVars, $3);
-    if (v) {
-        if (strcmp(v->tipo, "float") == 0) {
-            printf("%.2f\n", v->valor);
-        } else {
-            // Remove as aspas da string salva
-            char temp[100];
-            if (v->s_valor[0] == '"' && v->s_valor[strlen(v->s_valor) - 1] == '"') {
-                strncpy(temp, v->s_valor + 1, strlen(v->s_valor) - 2);
-                temp[strlen(v->s_valor) - 2] = '\0';
-                printf("%s\n", temp);
-            } else {
-                printf("%s\n", v->s_valor); // fallback
+    | PRINT '(' ID ')' {
+        VARS *v = srch(listaVars, $3);
+        if (v) {
+            if (strcmp(v->tipo, "int") == 0)
+                printf("%d\n", v->inte);
+            else if (strcmp(v->tipo, "float") == 0)
+                printf("%.2f\n", v->flo);
+            else {
+                // Remove as aspas da string salva
+                char temp[100];
+                if (v->s_valor[0] == '"' && v->s_valor[strlen(v->s_valor) - 1] == '"') {
+                    strncpy(temp, v->s_valor + 1, strlen(v->s_valor) - 2);
+                    temp[strlen(v->s_valor) - 2] = '\0';
+                    printf("%s\n", temp);
+                } else {
+                    printf("Variavel vazia\n");
+                }
             }
         }
     }
-}
     | PRINT '(' STRING ')' {
     char temp[100];
     strncpy(temp, $3 + 1, strlen($3) - 2); // remove aspas
     temp[strlen($3) - 2] = '\0';
     printf("%s\n", temp);
-    }
-    ;
+    };
 
 condicional:
     IF '(' expressao ')' '{' bloco '}'
@@ -180,8 +194,11 @@ expressao:
     | NUMBER { $$ = $1; }
     | ID {
         VARS *v = srch(listaVars, $1);
-        if (v) $$ = v->valor;
-        else $$ = 0;
+        if (v) {
+            if (strcmp(v->tipo, "int") == 0) $$ = v->inte;
+                else if (strcmp(v->tipo, "float") == 0) $$ = v->flo;
+                    else $$ = 0;
+        }
     }
     | '(' expressao ')' { $$ = $2; }
     ;
