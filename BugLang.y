@@ -139,7 +139,10 @@ leitura:
 
 escrita:
     PRINT '(' expressao ')' {
-        printf("%.2f\n", $3);
+        if (floor($3) == $3)
+            printf("%d\n", (int)$3);
+        else
+            printf("%.2f\n", $3);
     }
     | PRINT '(' ID ')' {
         VARS *v = srch(listaVars, $3);
@@ -171,7 +174,7 @@ escrita:
 condicional:
     IF '(' expressao ')' '{' bloco '}'
     | IF '(' expressao ')' '{' bloco '}' ELSE '{' bloco '}'
-    ;
+;
 
 repeticao:
     WHILE '(' expressao ')' '{' bloco '}'
