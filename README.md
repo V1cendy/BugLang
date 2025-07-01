@@ -15,5 +15,5 @@ Este compilador é uma versão aprimorada de um compilador inicial sem AST, inco
 ## Instalação
 1. **Clone o Repositório** (se aplicável):
    ```bash
-   git clone <URL_DO_REPOSITORIO>
+   git clone https://github.com/V1cendy/BugLang.git
    cd BugLang
